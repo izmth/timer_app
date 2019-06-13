@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
 
 class TimerModel extends Model {
   final stopwatch = new Stopwatch();
-  List<String> times = ["one", "two"]; // one, twoは仮なので気にしないで欲しい
+  List<String> times = [];
 
   void toggle() {
     // スタート、ストップ
@@ -40,7 +40,7 @@ class TimerModel extends Model {
 
   void save() {
     // ラップタイムのセーブ
-    times.add(stopwatch.elapsed.toString());
+    times.insert(0, stopwatch.elapsed.toString());
     notifyListeners();
     print("time was saved");
     print(times);
@@ -49,6 +49,8 @@ class TimerModel extends Model {
   void reset() {
     // ストップウォッチのリセット
     stopwatch.reset();
+    times.clear();
+    notifyListeners();
     print("stopwatch was refreshed");
   }
 
@@ -95,10 +97,10 @@ class TimerPage extends StatelessWidget {
 
 class ButtonWidget extends StatefulWidget {
   @override
-  _ButtonWidgetState createState() => _ButtonWidgetState();
+  ButtonWidgetState createState() => ButtonWidgetState();
 }
 
-class _ButtonWidgetState extends State<ButtonWidget> {
+class ButtonWidgetState extends State<ButtonWidget> {
   void _playButtonPressed() {
     // スタート、ストップ処理
     // setStateしないとボタンのアイコンが切り替わらない
@@ -195,10 +197,10 @@ class TimerWidgetState extends State<TimerWidget> {
 
 class ListWidget extends StatefulWidget {
   @override
-  _ListWidgetState createState() => _ListWidgetState();
+  ListWidgetState createState() => ListWidgetState();
 }
 
-class _ListWidgetState extends State<ListWidget> {
+class ListWidgetState extends State<ListWidget> {
   Widget _buildRow(String time) {
     return ListTile(
       // リストタイル
@@ -212,7 +214,7 @@ class _ListWidgetState extends State<ListWidget> {
 
   Widget _buildList() {
     return ListView.builder(
-        reverse: true,
+        reverse: false,
         padding: EdgeInsets.all(16.0),
         itemCount: TimerModel.of(context).times.length,
         itemBuilder: (context, index) {
@@ -225,6 +227,8 @@ class _ListWidgetState extends State<ListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildList();
+    return ScopedModelDescendant<TimerModel>(builder: (context, child, model) {
+      return _buildList();
+    });
   }
 }
