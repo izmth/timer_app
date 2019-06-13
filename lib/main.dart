@@ -26,18 +26,20 @@ class MyApp extends StatelessWidget {
 
 class TimerModel extends Model {
   final stopwatch = new Stopwatch();
-  List<String> times = ["one", "two"];
+  List<String> times = ["one", "two"]; // one, twoは仮なので気にしないで欲しい
 
   void toggle() {
+    // スタート、ストップ
     if (stopwatch.isRunning) {
       stopwatch.stop();
     } else {
       stopwatch.start();
     }
-    //notifyListeners();
+    notifyListeners();
   }
 
   void save() {
+    // ラップタイムのセーブ
     times.add(stopwatch.elapsed.toString());
     notifyListeners();
     print("time was saved");
@@ -45,6 +47,7 @@ class TimerModel extends Model {
   }
 
   void reset() {
+    // ストップウォッチのリセット
     stopwatch.reset();
     print("stopwatch was refreshed");
   }
@@ -70,14 +73,17 @@ class TimerPage extends StatelessWidget {
         child: Column(
           children: [
             Container(
+              // タイマー部分
               padding: EdgeInsets.only(top: 40, bottom: 40),
               child: TimerWidget(),
             ),
             Container(
+              // ボタン類
               padding: EdgeInsets.only(top: 16, bottom: 16),
               child: ButtonWidget(),
             ),
             Expanded(
+              // ラップタイムのリスト
               child: ListWidget(),
             )
           ],
@@ -94,6 +100,8 @@ class ButtonWidget extends StatefulWidget {
 
 class _ButtonWidgetState extends State<ButtonWidget> {
   void _playButtonPressed() {
+    // スタート、ストップ処理
+    // setStateしないとボタンのアイコンが切り替わらない
     setState(() {
       if (TimerModel.of(context).isRunning()) {
         TimerModel.of(context).toggle();
@@ -104,10 +112,12 @@ class _ButtonWidgetState extends State<ButtonWidget> {
   }
 
   void _resetButtonPressed() {
+    // リセット処理
     TimerModel.of(context).reset();
   }
 
   void _saveButtonPressed() {
+    // ラップタイムのセーブ処理
     TimerModel.of(context).save();
   }
 
@@ -125,9 +135,11 @@ class _ButtonWidgetState extends State<ButtonWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         _buildButton(
+            // スタート、ストップ
             TimerModel.of(context).isRunning() ? Icons.stop : Icons.play_arrow,
             _playButtonPressed),
         _buildButton(
+            // リセット、セーブ
             TimerModel.of(context).isRunning() ? Icons.save : Icons.refresh,
             TimerModel.of(context).isRunning()
                 ? _saveButtonPressed
@@ -149,7 +161,7 @@ class TimerWidgetState extends State<TimerWidget> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(
-      Duration(milliseconds: 16),
+      Duration(milliseconds: 16), // 60fpsで更新
       (_t) => setState(() {}),
     );
   }
@@ -161,6 +173,7 @@ class TimerWidgetState extends State<TimerWidget> {
   }
 
   String _printDuration(Duration duration) {
+    // HH:mm:ssにフォーマットする
     String twoDigits(int n) {
       if (n >= 10) return "$n";
       return "0$n";
@@ -188,6 +201,7 @@ class ListWidget extends StatefulWidget {
 class _ListWidgetState extends State<ListWidget> {
   Widget _buildRow(String time) {
     return ListTile(
+      // リストタイル
       leading: Icon(Icons.timer),
       title: Text(
         time,
@@ -203,8 +217,8 @@ class _ListWidgetState extends State<ListWidget> {
         itemCount: TimerModel.of(context).times.length,
         itemBuilder: (context, index) {
           return new Column(children: [
-            Divider(),
-            _buildRow(TimerModel.of(context).times[index]),
+            Divider(), // 罫線
+            _buildRow(TimerModel.of(context).times[index]), // タイル
           ]);
         });
   }
